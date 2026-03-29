@@ -1,24 +1,32 @@
-@Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .cors(Customizer.withDefaults())
-        .csrf(csrf -> csrf.disable())
-        .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth
-            // 1. Always permit the error path so you see real messages
-            .requestMatchers("/error").permitAll()
-            
-            // 2. Permit all Auth endpoints WITH wildcards (CRITICAL)
-            // This covers /api/auth/student/login, /api/auth/lecturer/login, etc.
-            .requestMatchers("/api/auth/**", "/auth/**").permitAll()
-            .requestMatchers("/api/public/**", "/public/**").permitAll()
-            .requestMatchers("/api/recording/stream/**").permitAll()
-            
-            // 3. Authenticated paths
-            .requestMatchers("/api/ai/**", "/api/results/**").authenticated()
-            
-            // 4. Lock everything else
-            .anyRequest().authenticated()
-        );
-    return http.build();
+package com.umat.quiz.config; // Check that this matches your actual package name
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(Customizer.withDefaults())
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                // This unlocks your HTML/CSS/JS
+                .requestMatchers("/", "/index.html", "/login.html", "/css/**", "/js/**").permitAll()
+                
+                .requestMatchers("/error").permitAll()
+                .requestMatchers("/api/auth/**", "/auth/**").permitAll()
+                .requestMatchers("/api/public/**", "/public/**").permitAll()
+                .anyRequest().authenticated()
+            );
+        return http.build();
+    }
 }
