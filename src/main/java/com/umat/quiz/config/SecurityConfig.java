@@ -1,4 +1,4 @@
-package com.umat.quiz.config; // Check that this matches your actual package name
+package com.umat.quiz.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Added this import
 
 @Configuration
 @EnableWebSecurity
@@ -28,5 +29,11 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             );
         return http.build();
+    }
+
+    // ADDED THIS BEAN TO FIX THE CRASH
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
